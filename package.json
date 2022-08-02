@@ -1,0 +1,41 @@
+{
+  "name": "x-scanner",
+  "version": "0.4.9",
+  "description": "Convenient lexical scanner inspired by Ruby's StringScanner",
+  "author": {
+    "name": "Chupacabral"
+  },
+  "license": "Apache License v2.0",
+  "homepage": "https://github.com/Chupacabral/X-Scanner",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chupacabral/X-Scanner"
+  },
+  "main": "index.js",
+  "keywords": [
+    "x-scanner",
+    "xscanner",
+    "stringscanner",
+    "scanner",
+    "string",
+    "text",
+    "textscanner",
+    "lex",
+    "lexer",
+    "lexical",
+    "parse",
+    "parser",
+    "parsing",
+    "analysis",
+    "token",
+    "tokenize",
+    "tokenizer"
+  ],
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "*"
+  }
+}
