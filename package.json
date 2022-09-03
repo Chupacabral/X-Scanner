@@ -5,13 +5,12 @@
   "author": {
     "name": "Chupacabral"
   },
-  "license": "Apache License v2.0",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/Chupacabral/X-Scanner",
   "repository": {
     "type": "git",
     "url": "https://github.com/Chupacabral/X-Scanner"
   },
-  "main": "index.js",
   "keywords": [
     "x-scanner",
     "xscanner",
@@ -31,11 +30,38 @@
     "tokenize",
     "tokenizer"
   ],
+  "main": "out/index.js",
+  "types": "out/index.d.ts",
   "scripts": {
-    "test": "mocha"
+    "qtest": "cls && cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\"} mocha -r ts-node/register 'test/**/*.ts'",
+    "test": "npm run format && npm run lint && npm run qtest",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" && prettier --write \"test/**/*.ts\"",
+    "lint": "tslint -p tsconfig.json",
+    "minify": "uglifyjs out/index.js -c -o out/index.js",
+    "minify-all": "npm run minify && uglifyjs out/deep_copy.js -c -o out/deep_copy.js",
+    "compile": "npm run format && npm run lint && npm run build && npm run minify-all",
+    "update-patch": "npm run compile && npm version --no-git-tag patch",
+    "update-prepatch": "npm run compile && npm version --no-git-tag prepatch",
+    "update-minor": "npm run compile && npm version --no-git-tag minor",
+    "update-preminor": "npm run compile && npm version --no-git-tag preminor",
+    "update-major": "npm run compile && npm version --no-git-tag major",
+    "update-premajor": "npm run compile && npm version --no-git-tag premajor"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
     "chai": "^4.3.6",
-    "mocha": "*"
+    "cross-env": "^6.0.3",
+    "eslint": "^8.23.0",
+    "mocha": "*",
+    "prettier": "^2.7.1",
+    "ts-node": "^10.9.1",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^4.8.2",
+    "uglify-js": "^3.17.0"
   }
 }

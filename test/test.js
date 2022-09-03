@@ -3,7 +3,7 @@ var [expect, should] = [chai.expect, chai.should()]
 
 chai.config.truncateThreshold = 0
 
-var XScanner = require('./index')
+var XScanner = require('../out/index').XScanner
 
 var xs
 
@@ -32,48 +32,19 @@ describe('XScanner', function() {
     xs = new XScanner(testText)
   })
 
-  describe('setCaseInsensitive', function() {
-    it('sets caseInsensitive to true', function() {
-      xs.setCaseInsensitive(true)
-      xs.caseInsensitive.should.be.true
-    })
-
-    it('sets caseInsensitive to false', function() {
-      xs.setCaseInsensitive(false)
-      xs.caseInsensitive.should.be.false
-    })
-  })
-
-  describe('setComplexOutput', function() {
-    it('sets complexOutput to true', function() {
-      xs.setComplexOutput(true)
-      xs.complexOutput.should.be.true
-    })
-    
-    it('sets complexOutput to false', function() {
-      xs.setComplexOutput(false)
-      xs.complexOutput.should.be.false
-    })
-  })
-
   describe('savePointer', function() {
     it('saves the current state of the scanner as a pointer', function() {
       xs.scan(goodString)
 
       expect(xs.pointers[testPointerName]).to.not.exist
 
-      let savedPointer = xs.savePointer(testPointerName)
+      xs.savePointer(testPointerName)
 
       // Test to make sure created pointer data is correct.
       xs.pointers[testPointerName].should.exist
-      savedPointer.should.equal(xs.pointers[testPointerName])
       xs.pointers[testPointerName].pos.should.equal(goodString.length)
       xs.pointers[testPointerName].lastPos.should.equal(0)
       xs.pointers[testPointerName].lastMatch.should.equal(goodString)
-
-      xs.pos.should.equal(savedPointer.pos)
-      xs.lastPos.should.equal(savedPointer.lastPos)
-      xs.lastMatch.should.equal(savedPointer.lastMatch)
     })
 
     it('saved state is different after scanner changes its state', function() {
@@ -257,11 +228,11 @@ describe('XScanner', function() {
 
     it('should reset everything else if needed', function() {
       xs.scan(goodString)
-      xs.savePointer()
+      xs.savePointer(testPointerName)
       xs.addType(testTypeName, (scanner) => null)
       xs.addMacro(testMacroName, (scanner) => null)
-      xs.setCaseInsensitive(true)
-      xs.setComplexOutput(true)
+      xs.comparisonMode = 'insensitive'
+      xs.outputType = 'full'
       xs.data[goodString] = goodString
 
       xs.reset(true)
@@ -273,8 +244,8 @@ describe('XScanner', function() {
       xs.types.should.deep.equal({})
       xs.macros.should.deep.equal({})
       xs.data.should.deep.equal({})
-      xs.caseInsensitive.should.be.false
-      xs.complexOutput.should.be.false
+      xs.comparisonMode.should.equal('normal')
+      xs.outputType.should.equal('normal')
     })
   })
 
@@ -336,13 +307,13 @@ describe('XScanner', function() {
       let match = xs.scanString(goodStringCI)
       expect(match).to.be.null
 
-      xs.setCaseInsensitive(true)
+      xs.comparisonMode = 'insensitive'
       match = xs.scanString(goodStringCI)
       match.should.equal(goodString)
     })
 
     it('returns same output in complex mode', function() {
-      xs.setComplexOutput(true)
+      xs.outputType = 'full'
       let match = xs.scanString(goodString)
       match.should.equal(goodString)
     })
@@ -386,13 +357,13 @@ describe('XScanner', function() {
       let match = xs.scanRegex(goodRegexCI)
       expect(match).to.be.null
 
-      xs.setCaseInsensitive(true)
+      xs.comparisonMode = 'insensitive'
       match = xs.scanRegex(goodRegexCI)
       match.should.equal(goodString)
     })
 
     it('returns same output in complex mode', function() {
-      xs.setComplexOutput(true)
+      xs.outputType = 'full'
       let match = xs.scanRegex(goodRegex)
       match.should.equal(goodString)
     })
@@ -429,21 +400,23 @@ describe('XScanner', function() {
       })
 
       it('works for string input in NI mode', function() {
-        xs.setCaseInsensitive(true)
+        xs.comparisonMode = 'insensitive'
         let match = xs.scanEnum(goodStringCI, testEnumOutput)
         match.should.equal(testEnumOutput)
       })
 
       it('works for regex input in NI mode', function() {
-        xs.setCaseInsensitive(true)
+        xs.comparisonMode = 'insensitive'
         let match = xs.scanEnum(goodRegexCI, testEnumOutput)
         match.should.equal(testEnumOutput)
       })
 
       it('returns same output even in complex mode', function() {
-        xs.setComplexOutput(true)
+        xs.outputType = 'full'
         let match = xs.scanEnum(testText, testEnumOutput)
         match.should.equal(testEnumOutput)
+
+        xs.reset()
 
         match = xs.scanEnum(goodRegex, testEnumOutput)
         match.should.equal(testEnumOutput)
@@ -489,13 +462,13 @@ describe('XScanner', function() {
       })
 
       it('works for string input in NI mode', function() {
-        xs.setCaseInsensitive(true)
+        xs.comparisonMode = 'insensitive'
         let match = xs.scanEnum(badString, 'never returned')
         expect(match).to.be.null
       })
 
       it('works for regex input in NI mode', function() {
-        xs.setCaseInsensitive(true)
+        xs.comparisonMode = 'insensitive'
         let match = xs.scanEnum(badRegex, 'never returned')
         expect(match).to.be.null
       })
@@ -830,7 +803,7 @@ describe('XScanner', function() {
 
     describe('works properly for complex output', function() {
       beforeEach(function() {
-        xs.setComplexOutput(true)
+        xs.outputType = 'full'
       })
 
       it('goes through multiple options if needed', function() {
@@ -1054,7 +1027,7 @@ describe('XScanner', function() {
 
     describe('works properly with I mode', function() {
       beforeEach(function() {
-        xs.setCaseInsensitive(true)
+        xs.comparisonMode = 'insensitive'
 
         xs.addType('good type', scanner => {
           return scanner.scanString(goodStringCI)
